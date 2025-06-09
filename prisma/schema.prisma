@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  VENUE_OWNER
+  SUPER_ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id          String      @id @default(uuid())
+  email       String      @unique
+  name        String?
+  role        Role        @default(USER)
+  phone       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  bookings    Booking[]
+  ownedVenues Venue[]
+}
+
+model Venue {
+  id            String      @id @default(uuid())
+  name          String
+  location      String
+  ownerId       String?
+  owner         User?       @relation(fields: [ownerId], references: [id])
+  description   String?
+  mediaUrls     String[]
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  activities    Activity[]
+  bookings      Booking[]
+
+  @@index([ownerId])
+}
+
+model Activity {
+  id            String      @id @default(uuid())
+  venueId       String
+  venue         Venue       @relation(fields: [venueId], references: [id])
+  name          String
+  type          String
+  pricePerHour  Float
+  description   String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  bookings      Booking[]
+
+  @@index([venueId, type])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  venueId     String
+  activityId  String
+  user        User          @relation(fields: [userId], references: [id])
+  venue       Venue         @relation(fields: [venueId], references: [id])
+  activity    Activity      @relation(fields: [activityId], references: [id])
+  startTime   DateTime
+  endTime     DateTime
+  totalPrice  Float
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  payments    Payment[]
+
+  @@unique([activityId, startTime, endTime])
+  @@index([userId, status])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  bookingId         String
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  razorpayPaymentId String        @unique
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([bookingId, status])
+}
