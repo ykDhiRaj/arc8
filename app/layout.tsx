@@ -32,7 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${poppins.variable} ${pixelFont.variable} font-sans antialiased`}>
+      <body
+      cz-shortcut-listen="true" className={`${inter.variable} ${poppins.variable} ${pixelFont.variable} font-sans antialiased`}>
           {children}
           <Toaster position="top-center" richColors />
       </body>
