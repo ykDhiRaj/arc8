@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -13,7 +12,6 @@ enum Role {
   USER
   ADMIN
   VENUE_OWNER
-  SUPER_ADMIN
 }
 
 enum BookingStatus {
@@ -30,68 +28,77 @@ enum PaymentStatus {
 }
 
 model User {
-  id          String      @id @default(uuid())
-  email       String      @unique
-  name        String?
-  role        Role        @default(USER)
-  phone       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  bookings    Booking[]
-  ownedVenues Venue[]
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          Role      @default(USER)
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+  ownedVenues   Venue[]
+  emailVerified Boolean
+  image         String?
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
 }
 
 model Venue {
-  id            String      @id @default(uuid())
-  name          String
-  location      String
-  ownerId       String?
-  owner         User?       @relation(fields: [ownerId], references: [id])
-  description   String?
-  mediaUrls     String[]
-  isActive      Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  activities    Activity[]
-  bookings      Booking[]
+  id          String     @id @default(uuid())
+  name        String
+  location    String
+  ownerId     String?
+  owner       User?      @relation(fields: [ownerId], references: [id])
+  description String?
+  mediaUrls   String[]
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  activities  Activity[]
+  bookings    Booking[]
 
   @@index([ownerId])
+  @@map("venues")
 }
 
 model Activity {
-  id            String      @id @default(uuid())
-  venueId       String
-  venue         Venue       @relation(fields: [venueId], references: [id])
-  name          String
-  type          String
-  pricePerHour  Float
-  description   String?
-  isActive      Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  bookings      Booking[]
+  id           String    @id @default(uuid())
+  venueId      String
+  venue        Venue     @relation(fields: [venueId], references: [id])
+  name         String
+  type         String
+  pricePerHour Float
+  description  String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  bookings     Booking[]
 
   @@index([venueId, type])
+  @@map("activities")
 }
 
 model Booking {
-  id          String        @id @default(uuid())
-  userId      String
-  venueId     String
-  activityId  String
-  user        User          @relation(fields: [userId], references: [id])
-  venue       Venue         @relation(fields: [venueId], references: [id])
-  activity    Activity      @relation(fields: [activityId], references: [id])
-  startTime   DateTime
-  endTime     DateTime
-  totalPrice  Float
-  status      BookingStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  payments    Payment[]
+  id         String        @id @default(uuid())
+  userId     String
+  venueId    String
+  activityId String
+  user       User          @relation(fields: [userId], references: [id])
+  venue      Venue         @relation(fields: [venueId], references: [id])
+  activity   Activity      @relation(fields: [activityId], references: [id])
+  startTime  DateTime
+  endTime    DateTime
+  totalPrice Float
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  payments   Payment[]
 
   @@unique([activityId, startTime, endTime])
   @@index([userId, status])
+  @@map("bookings")
 }
 
 model Payment {
@@ -106,4 +113,49 @@ model Payment {
   updatedAt         DateTime      @updatedAt
 
   @@index([bookingId, status])
+  @@map("payments")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }
