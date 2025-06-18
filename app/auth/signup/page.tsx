@@ -94,11 +94,7 @@ export default function SignUpPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 "
-            style={{
-                backgroundColor: "#1F2937",
-                fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif"
-            }}>
+        <div className="min-h-screen flex items-center justify-center p-4 ">
 
             <div className="relative w-full max-w-lg">
                 {/* Main Form Container */}
