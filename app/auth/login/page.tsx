@@ -3,6 +3,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import SignInOauth from "@/components/sign-in-oauth-button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { useRouter } from "next/navigation";
 
 interface LoginFormData {
     email: string;
@@ -15,6 +17,7 @@ interface LoginFormErrors {
 }
 
 export default function LoginPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState<LoginFormData>({
         email: "",
         password: ""
@@ -64,7 +67,10 @@ export default function LoginPage() {
                 toast.error(ctx.error.message);
 
             },
-            onSuccess: () => { }
+            onSuccess: () => {
+                toast.success("Login successful!");
+                router.push("/profile");
+            }
         });
         if (!validateForm()) return;
 
@@ -131,28 +137,14 @@ export default function LoginPage() {
                         </div>
 
                         {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="relative w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                            style={{
-                                backgroundColor: isSubmitting ? "#6B7280" : "#FCA311"
-                            }}
-                        >
-                            <span className="relative z-10 flex items-center justify-center space-x-2">
-                                {isSubmitting ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        <span>Logging in</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>🚀</span>
-                                        <span>Start Gaming</span>
-                                    </>
-                                )}
-                            </span>
-                        </button>
+                        <div className="mt-6">
+                            <InteractiveHoverButton
+                                type="submit"
+                                className="w-full"
+                                text="Login"
+                                disabled={isSubmitting}
+                            />
+                        </div>
                         <hr className="max-w-sm" />
                         <div className="flex flex-col gap-3 text-center">
                             Or

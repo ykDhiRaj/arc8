@@ -9,7 +9,7 @@ export default async function Profile() {
 
 
     return (
-        <div>
+        <div className="mt-20">
             <h1>Profile Page</h1>
             {session ? (
                 <p>Welcome back, {session.user.name}!</p>

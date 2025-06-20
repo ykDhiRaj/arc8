@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
-import { toast } from "sonner";
-import { signUp } from "@/lib/auth-client";
+import { signUpEmailAction } from "@/actions/sign-up-email.actions";
 import SignInOauth from "@/components/sign-in-oauth-button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { toast } from "sonner";
 interface SignUpFormData {
     name: string;
     email: string;
@@ -16,6 +18,8 @@ interface SignUpFormErrors {
 }
 
 export default function SignUpPage() {
+    const router = useRouter();
+
     const [formData, setFormData] = useState<SignUpFormData>({
         name: "",
         email: "",
@@ -31,7 +35,7 @@ export default function SignUpPage() {
             [name]: value
         }));
 
-        // Clear earror when user starts typing
+        // Clear error when user starts typing
         if (errors[name as keyof SignUpFormErrors]) {
             setErrors(prev => ({
                 ...prev,
@@ -56,71 +60,43 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         if (!validateForm()) return;
 
+        const formData = new FormData(e.target as HTMLFormElement);
         setIsSubmitting(true);
-
-        try {
-            // Create the user account with Better Auth
-            await signUp.email({
-                name: formData.name,
-                email: formData.email,
-                password: formData.password,
-            }, {
-                onRequest: () => {
-                    console.log("Creating account...");
-                },
-                onError: (error) => {
-                    console.error("Sign up error:", error);
-                    toast.error("❌ Sign up failed. Please try again.");
-                    setIsSubmitting(false);
-                },
-                onResponse: () => {
-                    console.log("Account creation response received");
-                },
-                onSuccess: async (data) => {
-                    toast.success("Made Account successfully");
-                    console.log("Sign up successful:", data);
-                }
-            });
-
-        } catch (error) {
-            console.error("Submission error:", error);
-            toast.error("❌ Something went wrong. Please try again.");
-        } finally {
+        const { error } = await signUpEmailAction(formData);
+        if (error) {
+            console.error("Sign up error:", error);
+            toast.error(`❌ ${error}`);
             setIsSubmitting(false);
         }
+        else {
+            toast.success("Account created successfully!");
+            router.push("/profile");
+        }
     };
-
     return (
         <div className="min-h-screen flex items-center justify-center p-4 ">
 
             <div className="relative w-full max-w-lg">
                 {/* Main Form Container */}
-                <div className="relative p-8 rounded-3xl shadow-2xl backdrop-blur-xl"
-                    style={{
-                        backgroundColor: "rgba(229, 229, 229, 0.95)",
-                        border: "2px solid rgba(252, 163, 17, 0.3)",
-                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 40px rgba(252, 163, 17, 0.1)"
-                    }}>
+                <div className="relative p-8 rounded-3xl shadow-xl backdrop-blur-xl bg-white text-black ">
 
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="mb-4">
                             <span className="text-4xl">🎮</span>
                         </div>
-                        <h1 className="text-3xl font-bold mb-2"
-                            style={{ color: "#14213D" }}>
+                        <h1 className="text-3xl font-bold mb-2 ">
                             Join the Game
                         </h1>
-                        <p className="text-gray-600">Create your player profile</p>
+                        <p>Create your player profile</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 text-black">
                         {/* Name Field */}
                         <div>
-                            <label className="block text-sm font-semibold mb-2 text-gray-700">
+                            <label className="block text-sm font-semibold mb-2 ">
                                 Full Name
                             </label>
                             <input
@@ -129,7 +105,7 @@ export default function SignUpPage() {
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 placeholder="Enter your full name"
-                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white/70 backdrop-blur-sm ${errors.name ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-orange-400"
+                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white backdrop-blur-sm ${errors.name ? "border-red-400 focus:border-red-500" : " focus:border-orange-400"
                                     } focus:shadow-lg focus:scale-[1.02]`}
                             />
                             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -137,7 +113,7 @@ export default function SignUpPage() {
 
                         {/* Email Field */}
                         <div>
-                            <label className="block text-sm font-semibold mb-2 text-gray-700">
+                            <label className="block text-sm font-semibold mb-2  ">
                                 Email Address
                             </label>
                             <input
@@ -146,7 +122,7 @@ export default function SignUpPage() {
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 placeholder="you@example.com"
-                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white/70 backdrop-blur-sm ${errors.email ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-orange-400"
+                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white backdrop-blur-sm ${errors.email ? "border-red-400 focus:border-red-500" : " focus:border-orange-400"
                                     } focus:shadow-lg focus:scale-[1.02]`}
                             />
                             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
@@ -154,7 +130,7 @@ export default function SignUpPage() {
 
                         {/* Password Field */}
                         <div>
-                            <label className="block text-sm font-semibold mb-2 text-gray-700">
+                            <label className="block text-sm font-semibold mb-2">
                                 Password
                             </label>
                             <input
@@ -163,35 +139,21 @@ export default function SignUpPage() {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 placeholder="Create password"
-                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white/70 backdrop-blur-sm ${errors.password ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-orange-400"
+                                className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none bg-white backdrop-blur-sm ${errors.password ? "border-red-400 focus:border-red-500" : " focus:border-orange-400"
                                     } focus:shadow-lg focus:scale-[1.02]`}
                             />
                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                         </div>
 
                         {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="relative w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                            style={{
-                                backgroundColor: isSubmitting ? "#6B7280" : "#FCA311"
-                            }}
-                        >
-                            <span className="relative z-10 flex items-center justify-center space-x-2">
-                                {isSubmitting ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        <span>Creating Account...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>🚀</span>
-                                        <span>Start Gaming</span>
-                                    </>
-                                )}
-                            </span>
-                        </button>
+                        <div className="mt-6">
+                            <InteractiveHoverButton
+                                type="submit"
+                                className="w-full"
+                                text="Sign Up"
+                                disabled={isSubmitting}
+                            />
+                        </div>
                         <hr className="max-w-sm" />
                         <div className="flex flex-col gap-3 text-center">
                             Or

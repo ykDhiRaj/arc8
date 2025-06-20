@@ -23,7 +23,7 @@ export default function SignOutButton() {
     }
 
     return (
-        <Button variant="destructive" onClick={handleSignOut}>
+        <Button variant="destructive" className="cursor-pointer" onClick={handleSignOut}>
             Sign Out
         </Button>
     );
