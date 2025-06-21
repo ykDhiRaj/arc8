@@ -4,10 +4,12 @@ import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button
 import { useSession } from "@/lib/auth-client";
 import { signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Navbar = () => {
     const router = useRouter();
+    const pathname = usePathname();
+    const { data: session } = useSession();
 
     async function handleSignOut() {
         await signOut({
@@ -22,18 +24,18 @@ const Navbar = () => {
             }
         });
     }
-    const { data } = useSession();
-    const session = data?.session;
+
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50">
+        <nav className="top-0 left-0 right-0 z-50 fixed ">
             <div className="max-w-6xl mx-auto py-4">
                 <div className="bg-white backdrop-blur-sm rounded-full px-8 shadow-lg">
                     <div className="flex items-center justify-between h-14 relative">
-                        {/* Left: Signup button (only if not logged in) */}
+                        {/* Left: Signup button (only if not logged in and not on /auth/signup) */}
                         <div className="w-32 flex items-center">
-                            {!session && (
+                            {!session && pathname !== "/auth/signup" && (
                                 <Link href="/auth/signup" >
-                                    <InteractiveHoverButton text="Signup" />
+                                    <InteractiveHoverButton text="Signup"
+                                    />
                                 </Link>
                             )}
                         </div>
@@ -50,16 +52,18 @@ const Navbar = () => {
                                 <Link href="/contact" className="text-[#14213d] font-bold transition-colors">/Contact/</Link>
                             )}
                         </div>
-                        {/* Right: Login or Logout */}
+                        {/* Right: Login or Logout (Login hidden on /auth/login) */}
                         <div className="w-32 flex items-center justify-end">
                             {session ? (
                                 <InteractiveHoverButton text="Logout"
                                     onClick={handleSignOut}
                                 />
                             ) : (
-                                <Link href="/auth/login" >
-                                    <InteractiveHoverButton text="Login" />
-                                </Link>
+                                pathname !== "/auth/login" && (
+                                    <Link href="/auth/login" >
+                                        <InteractiveHoverButton text="Login" />
+                                    </Link>
+                                )
                             )}
                         </div>
                     </div>

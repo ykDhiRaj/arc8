@@ -1,23 +1,21 @@
-import SignOutButton from "@/components/sign-out-button";
 import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { 
-  CalendarDays, 
-  MapPin, 
-  User2, 
-  Gamepad2, 
-  Trophy, 
-  Users,
-  Clock,
-  Star,
-  Settings,
-  Crown,
-  Zap,
-  Target,
+import {
   Calendar,
-  CreditCard
+  CalendarDays,
+  Clock,
+  CreditCard,
+  Crown,
+  Gamepad2,
+  MapPin,
+  Settings,
+  Star,
+  Target,
+  Trophy,
+  Users,
+  Zap
 } from "lucide-react";
+import { headers } from "next/headers";
+import Image from "next/image";
 
 export default async function Profile() {
   const session = await auth.api.getSession({
@@ -59,7 +57,7 @@ export default async function Profile() {
       amount: 60
     },
     {
-      id: 3,  
+      id: 3,
       venueName: "Cyber Café Pro",
       date: "2024-06-20",
       time: "20:00 - 23:00",
@@ -84,9 +82,9 @@ export default async function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 py-6 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
+    <div className="min-h-screen py-6 px-4 md:px-8 mt-16">
+      <div className="max-w-6xl flex flex-col mx-auto space-y-6">
+
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
@@ -100,7 +98,6 @@ export default async function Profile() {
               <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200">
                 <Settings className="w-5 h-5" />
               </button>
-              <SignOutButton />
             </div>
           </div>
         </div>
@@ -109,23 +106,35 @@ export default async function Profile() {
           <>
             {/* User Info & Gaming Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              
+
               {/* User Profile Card */}
               <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <div className="text-center">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-blue-200">
-                      {session.user.name?.charAt(0)}
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold mx-auto mb-4 ring-4 ring-blue-200 overflow-hidden">
+                      {session.user.image ? (
+                        <Image
+                          src={session.user.image}
+                          alt={session.user.name || "Profile image"}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          unoptimized
+                          height={96}
+                          width={96}
+                        />
+                      ) : (
+                        <span>{session.user.name?.charAt(0) || "?"}</span>
+                      )}
                     </div>
                     <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                       <Crown className="w-3 h-3" />
                       {gamerStats.gamerLevel}
                     </div>
                   </div>
-                  
+
                   <h2 className="text-xl font-semibold text-gray-900 mt-4">{session.user.name}</h2>
                   <p className="text-gray-600 mb-4">{session.user.email}</p>
-                  
+
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-center gap-2 text-gray-600">
                       <CalendarDays className="w-4 h-4" />
@@ -146,19 +155,19 @@ export default async function Profile() {
                   <div className="text-2xl font-bold text-gray-900">{gamerStats.totalBookings}</div>
                   <div className="text-xs text-gray-500">Total Sessions</div>
                 </div>
-                
+
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
                   <Clock className="w-8 h-8 text-green-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-gray-900">{gamerStats.hoursPlayed}h</div>
                   <div className="text-xs text-gray-500">Hours Played</div>
                 </div>
-                
+
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
                   <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-gray-900">{gamerStats.winRate}%</div>
                   <div className="text-xs text-gray-500">Win Rate</div>
                 </div>
-                
+
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
                   <Target className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-gray-900">{gamerStats.tournaments}</div>
@@ -169,7 +178,7 @@ export default async function Profile() {
 
             {/* Recent Bookings & Achievements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
+
               {/* Recent Gaming Sessions */}
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -179,7 +188,7 @@ export default async function Profile() {
                   </h3>
                   <button className="text-blue-500 hover:text-blue-600 text-sm">View All</button>
                 </div>
-                
+
                 <div className="space-y-3">
                   {recentBookings.map((booking) => (
                     <div key={booking.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
@@ -188,11 +197,10 @@ export default async function Profile() {
                           <h4 className="font-medium text-gray-900">{booking.venueName}</h4>
                           <p className="text-sm text-gray-600">{booking.game} • {booking.players} players</p>
                         </div>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          booking.status === 'confirmed' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 text-gray-600'
-                        }`}>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${booking.status === "confirmed"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                          }`}>
                           {booking.status}
                         </div>
                       </div>
@@ -213,7 +221,7 @@ export default async function Profile() {
                     Achievements
                   </h3>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   {achievements.map((achievement, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-center">
@@ -228,14 +236,14 @@ export default async function Profile() {
 
             {/* Favorite Venues & Gaming Preferences */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
+
               {/* Favorite Gaming Venues */}
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-blue-500" />
                   Favorite Gaming Venues
                 </h3>
-                
+
                 <div className="space-y-4">
                   {favoriteVenues.map((venue, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
@@ -264,7 +272,7 @@ export default async function Profile() {
                   <Zap className="w-5 h-5 text-purple-400" />
                   Gaming Preferences
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm text-gray-400 mb-2 block">Favorite Game Genres</label>
@@ -276,14 +284,14 @@ export default async function Profile() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
                       <Users className="w-5 h-5 text-blue-400 mb-2" />
                       <div className="text-sm text-gray-400">Preferred Team Size</div>
                       <div className="text-lg font-bold text-white">5 Players</div>
                     </div>
-                    
+
                     <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50">
                       <CreditCard className="w-5 h-5 text-green-400 mb-2" />
                       <div className="text-sm text-gray-400">Total Spent</div>
@@ -294,7 +302,7 @@ export default async function Profile() {
               </div>
             </div>
 
-            
+
           </>
         ) : (
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-xl border border-red-500/20 p-8 text-center">

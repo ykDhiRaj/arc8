@@ -144,7 +144,7 @@ export default function Venues() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen max-w-6xl flex flex-col mx-auto mt-16">
             <main className="container mx-auto px-4 py-8">
                 {/* Hero Section */}
                 <section className="text-center mb-12">
