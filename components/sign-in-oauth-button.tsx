@@ -31,7 +31,7 @@ const SignInOauth = ({ signUp }: SignInOauthProps) => {
     };
 
     return (
-        <Button onClick={handleClick} disabled={isPending} >
+        <Button onClick={handleClick} disabled={isPending} className="text-md font-bold" >
             Sign {action} with Google
         </Button>
     );

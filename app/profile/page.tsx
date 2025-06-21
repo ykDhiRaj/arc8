@@ -1,5 +1,6 @@
 import SignOutButton from "@/components/sign-out-button";
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { 
   CalendarDays, 
